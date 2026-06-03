@@ -3,6 +3,7 @@ package com.nexora.acc.service.impl;
 import com.nexora.acc.dto.AuthResponseDto;
 import com.nexora.acc.dto.LoginRequestDto;
 import com.nexora.acc.dto.RegisterRequestDto;
+import com.nexora.acc.dto.UserDto;
 import com.nexora.acc.entity.User;
 import com.nexora.acc.mapper.UserMapper;
 import com.nexora.acc.repository.UserRepository;
@@ -10,6 +11,7 @@ import com.nexora.acc.service.iAuthService;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import javax.swing.text.html.Option;
@@ -66,5 +68,7 @@ public class AuthServiceImpl implements iAuthService {
                 "Login successful"
         );
     }
+
+
 
 }
