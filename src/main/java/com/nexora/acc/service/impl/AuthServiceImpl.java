@@ -5,17 +5,20 @@ import com.nexora.acc.dto.LoginRequestDto;
 import com.nexora.acc.dto.RegisterRequestDto;
 import com.nexora.acc.dto.UserDto;
 import com.nexora.acc.entity.User;
+import com.nexora.acc.exception.ResourceNotFoundException;
 import com.nexora.acc.mapper.UserMapper;
 import com.nexora.acc.repository.UserRepository;
 import com.nexora.acc.service.iAuthService;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import javax.swing.text.html.Option;
+import java.time.LocalDateTime;
 import java.util.Optional;
+
+import static com.nexora.acc.mapper.UserMapper.MapsToUser;
 
 @Service
 @RequiredArgsConstructor
@@ -45,6 +48,11 @@ public class AuthServiceImpl implements iAuthService {
         user.setMobileNumber(dto.getMobileNumber());
         user.setRole("BUYER");
 
+        user.setUpdatedAt(LocalDateTime.now());
+        user.setUpdatedBy("SYSTEM");
+        user.setCreatedAt(LocalDateTime.now());
+        user.setCreatedBy("SYSTEM");
+
 
 
         userRepository.save(user);
@@ -52,11 +60,12 @@ public class AuthServiceImpl implements iAuthService {
         return "User registered succesfully";
     }
 
+    @Override
     public AuthResponseDto login(LoginRequestDto dto){
 
         User user=userRepository.findByEmail(dto.getEmail()).orElseThrow(()->new RuntimeException("User not found"));
 
-        if (!passwordEncoder.matches(dto.getPassoword(), user.getPassword())) {
+        if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
             throw new RuntimeException("Invalid credentials");
         }
 
@@ -69,6 +78,25 @@ public class AuthServiceImpl implements iAuthService {
         );
     }
 
+    @Override
+    public boolean updateUser(UserDto userDto){
+        User user=userRepository.findByMobileNumber(userDto.getMobileNumber()).orElseThrow(() -> new ResourceNotFoundException(
+                "User", "mobileNumber", userDto.getMobileNumber()));
+
+        MapsToUser(user,userDto);
+        userRepository.save(user);
+
+        return true;
+    }
+
+    @Override
+    public boolean deleteUser(String mobileNumber){
+        User user=userRepository.findByMobileNumber(mobileNumber).orElseThrow(()->new ResourceNotFoundException("User","user",mobileNumber));
+
+        userRepository.deleteById(user.getUser_id());
+
+        return true;
+    }
 
 
 }
